@@ -21,6 +21,7 @@ public class CardWrapper : MonoBehaviour, IPointerEnterHandler, IPointerExitHand
 
     private bool isHovered;
     private bool isDragged;
+    private bool isSelected;
     private Vector2 dragStartPos;
     public EventsConfig eventsConfig;
     public bool preventCardInteraction;
@@ -45,7 +46,7 @@ public class CardWrapper : MonoBehaviour, IPointerEnterHandler, IPointerExitHand
     }
 
     private void UpdateUILayer() {
-        if (!isHovered && !isDragged) {
+        if (!isHovered && !isDragged && !isSelected) {
             canvas.sortingOrder = uiLayer;
         }
     }
@@ -53,7 +54,7 @@ public class CardWrapper : MonoBehaviour, IPointerEnterHandler, IPointerExitHand
     private void UpdatePosition() {
         if (!isDragged) {
             var target = new Vector2(targetPosition.x, targetPosition.y + targetVerticalDisplacement);
-            if (isHovered && zoomConfig.overrideYPosition != -1) {
+            if (isHovered || isSelected && zoomConfig.overrideYPosition != -1) {
                 target = new Vector2(target.x, zoomConfig.overrideYPosition);
             }
 
@@ -62,7 +63,7 @@ public class CardWrapper : MonoBehaviour, IPointerEnterHandler, IPointerExitHand
                 ? animationSpeedConfig.releasePosition
                 : animationSpeedConfig.position;
             rectTransform.position = Vector2.Lerp(rectTransform.position, target,
-                repositionSpeed / distance * Time.deltaTime);
+                repositionSpeed / distance * (Time.deltaTime));
         }
         else {
             var delta = ((Vector2)Input.mousePosition + dragStartPos);
@@ -71,10 +72,10 @@ public class CardWrapper : MonoBehaviour, IPointerEnterHandler, IPointerExitHand
     }
 
     private void UpdateScale() {
-        var targetZoom = (isDragged || isHovered) && zoomConfig.zoomOnHover ? zoomConfig.multiplier : 1;
+        var targetZoom = (isDragged || isHovered || isSelected) && zoomConfig.zoomOnHover ? zoomConfig.multiplier : 1;
         var delta = Mathf.Abs(rectTransform.localScale.x - targetZoom);
         var newZoom = Mathf.Lerp(rectTransform.localScale.x, targetZoom,
-            animationSpeedConfig.zoom / delta * Time.deltaTime);
+            animationSpeedConfig.zoom / delta * (Time.deltaTime * 2 ));
         rectTransform.localScale = new Vector3(newZoom, newZoom, 1);
     }
 
@@ -83,7 +84,7 @@ public class CardWrapper : MonoBehaviour, IPointerEnterHandler, IPointerExitHand
         // If the angle is negative, add 360 to it to get the positive equivalent
         crtAngle = crtAngle < 0 ? crtAngle + 360 : crtAngle;
         // If the card is hovered and the rotation should be reset, set the target rotation to 0
-        var tempTargetRotation = (isHovered || isDragged) && zoomConfig.resetRotationOnZoom
+        var tempTargetRotation = (isHovered || isDragged || isSelected) && zoomConfig.resetRotationOnZoom
             ? 0
             : targetRotation;
         tempTargetRotation = tempTargetRotation < 0 ? tempTargetRotation + 360 : tempTargetRotation;
@@ -108,7 +109,13 @@ public class CardWrapper : MonoBehaviour, IPointerEnterHandler, IPointerExitHand
         rectTransform.anchorMax = max;
     }
 
+    public void UnSelectCard()
+    {
+        isSelected = false;
+    }
+
     public void OnPointerEnter(PointerEventData eventData) {
+        Debug.Log("ici");
         if (isDragged) {
             // Avoid hover events while dragging
             return;
@@ -122,26 +129,38 @@ public class CardWrapper : MonoBehaviour, IPointerEnterHandler, IPointerExitHand
     }
 
     public void OnPointerExit(PointerEventData eventData) {
+        Debug.Log("ici2");
         if (isDragged) {
             // Avoid hover events while dragging
             return;
         }
-        canvas.sortingOrder = uiLayer;
+        if (!isSelected) { canvas.sortingOrder = uiLayer; }
         isHovered = false;
         eventsConfig?.OnCardUnhover?.Invoke(new CardUnhover(this));
     }
 
     public void OnPointerDown(PointerEventData eventData) {
         if (preventCardInteraction) return;
-        isDragged = true;
-        dragStartPos = new Vector2(transform.position.x - eventData.position.x,
-            transform.position.y - eventData.position.y);
-        container.OnCardDragStart(this);
-        eventsConfig?.OnCardUnhover?.Invoke(new CardUnhover(this));
+        if (!isSelected) { 
+            container.UnselectAllCard();
+            isSelected = true; }
+        else
+        {
+            isSelected = false;
+            isDragged = true;
+            dragStartPos = new Vector2(transform.position.x - eventData.position.x,
+                transform.position.y - eventData.position.y);
+            container.OnCardDragStart(this);
+            eventsConfig?.OnCardUnhover?.Invoke(new CardUnhover(this));
+        };
+        
     }
+
+
 
     public void OnPointerUp(PointerEventData eventData) {
         isDragged = false;
+        
         container.OnCardDragEnd();
     }
 }

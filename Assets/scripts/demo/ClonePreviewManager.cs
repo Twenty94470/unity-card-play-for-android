@@ -31,12 +31,12 @@ namespace demo {
 
         public void OnCardPreviewStarted(CardWrapper card) {
             if (!previews.ContainsKey(card)) {
-                CreateCloneForCard(card);
+                //CreateCloneForCard(card);
             }
 
-            var preview = previews[card];
-            preview.gameObject.SetActive(true);
-            preview.position = new Vector3(card.transform.position.x, verticalPosition, card.transform.position.z);
+            //var preview = previews[card];
+            //preview.gameObject.SetActive(true);
+            //preview.position = new Vector3(card.transform.position.x, verticalPosition, card.transform.position.z);
         }
 
         private void CreateCloneForCard(CardWrapper card) {
@@ -63,7 +63,7 @@ namespace demo {
         }
 
         public void OnCardPreviewEnded(CardWrapper card) {
-            previews[card].gameObject.SetActive(false);
+            //previews[card].gameObject.SetActive(false);
         }
     }
 }

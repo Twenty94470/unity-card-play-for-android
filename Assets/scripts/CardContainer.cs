@@ -11,6 +11,9 @@ public class CardContainer : MonoBehaviour {
     [SerializeField]
     private bool forceFitContainer;
 
+    [SerializeField] 
+    private int spacing = 0;
+
     [SerializeField]
     private bool preventCardInteraction;
 
@@ -173,12 +176,12 @@ public class CardContainer : MonoBehaviour {
         // Get the width of the container
         var width = rectTransform.rect.width * transform.lossyScale.x;
         // Get the distance between each child
-        var distanceBetweenChildren = (width - childrenTotalWidth) / (cards.Count - 1);
+        var distanceBetweenChildren = (width - childrenTotalWidth + spacing) / (cards.Count - 1);
         // Set all children's positions to be evenly spaced out
         var currentX = transform.position.x - width / 2;
         foreach (CardWrapper child in cards) {
             var adjustedChildWidth = child.width * child.transform.lossyScale.x;
-            child.targetPosition = new Vector2(currentX + adjustedChildWidth / 2, transform.position.y);
+            child.targetPosition = new Vector2(currentX + (adjustedChildWidth - spacing) / 2, transform.position.y);
             currentX += adjustedChildWidth + distanceBetweenChildren;
         }
     }
@@ -214,6 +217,15 @@ public class CardContainer : MonoBehaviour {
 
     public void OnCardDragStart(CardWrapper card) {
         currentDraggedCard = card;
+        Debug.Log(currentDraggedCard);
+    }
+
+    public void UnselectAllCard()
+    {
+        foreach (CardWrapper child in cards)
+        {
+            child.UnSelectCard();
+        }
     }
 
     public void OnCardDragEnd() {
@@ -225,6 +237,7 @@ public class CardContainer : MonoBehaviour {
             }
         }
         currentDraggedCard = null;
+        
     }
     
     public void DestroyCard(CardWrapper card) {
