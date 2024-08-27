@@ -46,7 +46,5 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
-Modification of the fork : 
-Remove Hover
-The card is selected before is playing
-Drop Button
+## Android Support
+Some features are very good on Windows but are not suitable for mobile devices,
