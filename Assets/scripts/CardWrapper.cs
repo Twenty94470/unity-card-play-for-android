@@ -115,7 +115,6 @@ public class CardWrapper : MonoBehaviour, IPointerEnterHandler, IPointerExitHand
     }
 
     public void OnPointerEnter(PointerEventData eventData) {
-        Debug.Log("ici");
         if (isDragged) {
             // Avoid hover events while dragging
             return;
@@ -129,7 +128,6 @@ public class CardWrapper : MonoBehaviour, IPointerEnterHandler, IPointerExitHand
     }
 
     public void OnPointerExit(PointerEventData eventData) {
-        Debug.Log("ici2");
         if (isDragged) {
             // Avoid hover events while dragging
             return;
